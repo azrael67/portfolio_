@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arjun MB | Game Designer & Technical Artist</title>
+    <style>
+        :root {
+            --bg-color: #0a0a0a;
+            --card-bg: #161616;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent: #00ff88;
+            --accent-glow: rgba(0, 255, 136, 0.4);
+            --gradient: linear-gradient(135deg, #00ff88 0%, #00b8ff 100%);
+            
+            /* Button Colors */
+            --btn-about: #8A2BE2;
+            --btn-about-glow: rgba(138, 43, 226, 0.5);
+            --btn-work: #FF0055;
+            --btn-work-glow: rgba(255, 0, 85, 0.5);
+            --btn-contact: #00E5FF;
+            --btn-contact-glow: rgba(0, 229, 255, 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* --- SPLASH SCREEN --- */
+        #splash-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+            background-color: #000; z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 0.8s ease-in-out;
+            padding: 2rem;
+        }
+        
+        .engine-logo { font-size: 0.8rem; color: #555; letter-spacing: 4px; margin-bottom: 2rem; animation: fadeIn 2s ease forwards; text-transform: uppercase; }
+        .welcome-text { font-size: 3.5rem; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; opacity: 0; animation: popIn 1s forwards 0.5s; text-align: center; margin-bottom: 1rem; }
+        .enter-btn { margin-top: 2rem; padding: 1rem 3rem; background: transparent; border: 1px solid var(--accent); color: var(--accent); cursor: pointer; opacity: 0; animation: fadeIn 1s forwards 1.5s; text-transform: uppercase; letter-spacing: 2px; font-weight: bold; transition: all 0.3s;}
+        .enter-btn:hover { background: var(--accent); color: #000; box-shadow: 0 0 20px var(--accent-glow); }
+        
+        .fun-tagline {
+            margin-top: 2rem;
+            font-size: 0.95rem;
+            font-family: 'Courier New', monospace;
+            opacity: 0;
+            animation: fadeIn 1s forwards 2s, rainbowCycle 4s linear infinite 2s;
+            text-align: center;
+            max-width: 600px;
+        }
+
+        @keyframes rainbowCycle {
+            0% { color: #00ff88; } 25% { color: #00E5FF; } 50% { color: #8A2BE2; } 75% { color: #FF0055; } 100% { color: #00ff88; }
+        }
+
+        .loader-line { position: absolute; bottom: 20%; width: 200px; height: 2px; background: #222; }
+        .loader-fill { width: 0%; height: 100%; background: var(--accent); animation: loadProgress 1.5s ease-in-out forwards; }
+
+        /* --- MAIN LAYOUT --- */
+        #main-content { opacity: 0; display: none; transition: opacity 1s ease; }
+        nav { padding: 1.5rem 5%; display: flex; justify-content: space-between; position: fixed; width: 100%; background: rgba(10, 10, 10, 0.9); backdrop-filter: blur(10px); z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .logo { font-size: 1.5rem; font-weight: 700; color: #fff; } .logo span { color: var(--accent); }
+        .nav-links a { color: #a0a0a0; text-decoration: none; margin-left: 2rem; } .nav-links a:hover { color: var(--accent); }
+
+        .hero { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 0 1rem; }
+        .hero h1 { font-size: 5rem; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 1rem; line-height: 1.1; }
+        .cta-container { display: flex; gap: 1.5rem; margin-top: 2rem; flex-wrap: wrap; justify-content: center; }
+        
+        .btn-custom { padding: 1rem 2rem; border-radius: 4px; text-decoration: none; font-weight: bold; text-transform: uppercase; transition: all 0.3s; }
+        .btn-about { border: 2px solid var(--btn-about); color: var(--btn-about); } .btn-about:hover { background: var(--btn-about); color: #fff; box-shadow: 0 0 20px var(--btn-about-glow); }
+        .btn-work { border: 2px solid var(--btn-work); color: var(--btn-work); } .btn-work:hover { background: var(--btn-work); color: #fff; box-shadow: 0 0 20px var(--btn-work-glow); }
+        .btn-contact { border: 2px solid var(--btn-contact); color: var(--btn-contact); } .btn-contact:hover { background: var(--btn-contact); color: #000; box-shadow: 0 0 20px var(--btn-contact-glow); }
+
+        .section { padding: 8rem 10%; }
+        .section-title { font-size: 2.5rem; margin-bottom: 3rem; border-bottom: 4px solid var(--accent); display: inline-block; padding-bottom: 0.5rem; }
+
+        .intro-text { font-size: 1.25rem; color: #eee; margin-bottom: 4rem; max-width: 900px; line-height: 1.8; border-left: 2px solid var(--accent); padding-left: 1.5rem; }
+
+        /* --- WORK SECTION --- */
+        .work-categories { display: flex; justify-content: center; gap: 1rem; margin-bottom: 3rem; flex-wrap: wrap; }
+        .category-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 0.8rem 1.2rem; color: #aaa; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px; }
+        .category-btn.active, .category-btn:hover { background: var(--accent); color: #000; border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
+
+        .project-grid { display: none; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
+        .project-grid.active-grid { display: grid; animation: fadeUp 0.5s ease; }
+        
+        .project-card { background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; overflow: hidden; cursor: pointer; transition: transform 0.3s, border-color 0.3s; }
+        .project-card:hover { transform: translateY(-10px); border-color: var(--accent); }
+        .card-icon { height: 180px; background: #222; display: flex; align-items: center; justify-content: center; font-size: 4rem; color: #555; }
+        .card-info { padding: 1.5rem; }
+        .card-info h3 { margin-bottom: 0.5rem; font-size: 1.4rem; color: var(--accent); }
+        .card-info p { font-size: 0.9rem; color: #888; }
+
+        /* --- TECH ART TABS --- */
+        .tech-art-container { display: none; background: var(--card-bg); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; }
+        .tech-art-container.active-grid { display: block; animation: fadeUp 0.5s ease; }
+        .tech-tabs-nav { display: flex; background: rgba(0,0,0,0.3); border-bottom: 1px solid rgba(255,255,255,0.1); flex-wrap: wrap; }
+        .tech-tab { flex: 1; padding: 1.5rem; text-align: center; cursor: pointer; color: #888; transition: all 0.3s; font-weight: bold; text-transform: uppercase; border-right: 1px solid rgba(255,255,255,0.05); min-width: 150px; }
+        .tech-tab:hover { color: var(--accent); background: rgba(255,255,255,0.02); }
+        .tech-tab.active-tech { color: #000; background: var(--accent); }
+        .tech-content-area { padding: 3rem; }
+        .tech-tab-content { display: none; animation: slideInRight 0.5s ease; }
+        .tech-tab-content.active-content { display: block; }
+
+        .tech-video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; background: #000; border: 1px solid #333; border-radius: 8px; overflow: hidden; margin-bottom: 1.5rem; }
+        .tech-video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+        /* --- CONTACT & SOCIALS --- */
+        .social-container { display: flex; justify-content: center; gap: 2rem; margin-top: 3rem; flex-wrap: wrap; }
+        .social-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; transition: transform 0.3s; width: 130px; }
+        .social-item:hover { transform: translateY(-10px); }
+        .social-icon-box { width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); margin-bottom: 1rem; transition: all 0.3s; }
+        
+        .social-item:hover .social-icon-box.insta { border-color: #E1306C; box-shadow: 0 0 20px rgba(225, 48, 108, 0.4); background: rgba(225, 48, 108, 0.1); }
+        .social-item:hover .social-icon-box.linkedin { border-color: #0077B5; box-shadow: 0 0 20px rgba(0, 119, 181, 0.4); background: rgba(0, 119, 181, 0.1); }
+        .social-item:hover .social-icon-box.gmail { border-color: #EA4335; box-shadow: 0 0 20px rgba(234, 67, 53, 0.4); background: rgba(234, 67, 53, 0.1); }
+        .social-item:hover .social-icon-box.resume { border-color: var(--accent); box-shadow: 0 0 20px var(--accent-glow); background: rgba(0, 255, 136, 0.1); }
+
+        .social-icon-svg { width: 40px; height: 40px; fill: #fff; transition: fill 0.3s; }
+        .social-item:hover .social-icon-box.insta .social-icon-svg { fill: #E1306C; }
+        .social-item:hover .social-icon-box.linkedin .social-icon-svg { fill: #0077B5; }
+        .social-item:hover .social-icon-box.gmail .social-icon-svg { fill: #EA4335; }
+        .social-item:hover .social-icon-box.resume .social-icon-svg { fill: var(--accent); }
+
+        .social-text { color: #888; font-size: 0.9rem; transition: color 0.3s; text-align: center; }
+        .social-item:hover .social-text { color: #fff; }
+
+        /* --- MODAL --- */
+        #project-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; display: none; overflow-y: auto; padding: 2rem; }
+        .modal-content { max-width: 900px; margin: 2rem auto; position: relative; animation: modalZoom 0.4s ease; padding-bottom: 4rem; }
+        .close-modal { position: absolute; top: -40px; right: 0; font-size: 2.5rem; color: #fff; cursor: pointer; z-index: 2001; }
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; background: #000; border: 1px solid #333; margin-bottom: 2rem; border-radius: 8px; overflow: hidden; }
+        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .modal-title { font-size: 3rem; margin-bottom: 1rem; color: var(--accent); line-height: 1.2; }
+        .role-badges { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
+        .role-badge { padding: 0.4rem 1rem; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; font-size: 0.85rem; color: #fff; }
+        .modal-desc { font-size: 1.1rem; color: #ccc; line-height: 1.8; white-space: pre-wrap; }
+        .modal-desc b { color: var(--accent); }
+
+        .artstation-btn { display: inline-block; margin-top: 2rem; padding: 1rem 2rem; background: #13aff0; color: #fff; text-decoration: none; font-weight: bold; border-radius: 4px; transition: background 0.3s; }
+        .artstation-btn:hover { background: #0099e5; }
+
+        @keyframes fadeIn { from {opacity:0} to {opacity:1} }
+        @keyframes popIn { from {opacity:0; transform:scale(0.9)} to {opacity:1; transform:scale(1)} }
+        @keyframes loadProgress { from {width:0} to {width:100%} }
+        @keyframes fadeUp { from {opacity:0; transform:translateY(20px)} to {opacity:1; transform:translateY(0)} }
+        @keyframes slideInRight { from {opacity:0; transform:translateX(20px)} to {opacity:1; transform:translateX(0)} }
+        @keyframes modalZoom { from {opacity:0; transform:scale(0.9)} to {opacity:1; transform:scale(1)} }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 3rem; }
+            .nav-links { display: none; }
+            .modal-title { font-size: 2rem; }
+            .social-container { gap: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="splash-screen">
+        <div class="engine-logo">PORTFOLIO ENGINE v1.0</div>
+        <div class="loader-line"><div class="loader-fill"></div></div>
+        <h1 class="welcome-text">Welcome to my portfolio</h1>
+        <button class="enter-btn" onclick="startGame()">ENTER</button>
+        <p class="fun-tagline">Design games so players forget time exist (sometimes food).</p>
+    </div>
+
+    <div id="main-content">
+        <nav>
+            <div class="logo">ARJUN<span>MB</span></div>
+            <div class="nav-links">
+                <a href="#about-roles">About</a>
+                <a href="#work">Work</a>
+                <a href="#contact">Contact</a>
+            </div>
+        </nav>
+
+        <header class="hero" id="hero-section">
+            <h1>ARJUN MB</h1>
+            <p>Game Designer | Technical Artist | Narrative Designer</p>
+            <div class="cta-container">
+                <a href="#about-roles" class="btn-custom btn-about">About Me</a>
+                <a href="#work" class="btn-custom btn-work">View Works</a>
+                <a href="#contact" class="btn-custom btn-contact">Contact</a>
+            </div>
+        </header>
+
+        <section id="about-roles" class="section">
+            <h2 class="section-title">About Me</h2>
+            <div class="intro-text">
+                I’m a Game and Narrative Designer who loves building meaningful gameplay experiences driven by strong stories and smart design choices. I enjoy crafting game narratives that don’t just exist in cutscenes, but live inside the mechanics, environments, and player decisions.
+                <br><br>
+                Alongside design, I work as a Technical Artist, bridging the gap between creativity and technology. I enjoy optimizing workflows, working with game engines, shaders, and tools to make ideas not only look good, but run smoothly.
+                <br><br>
+                I also bring experience as a Video and Photo Editor, using visual storytelling, pacing, and composition to enhance mood, presentation, and player immersion. This multidisciplinary skill set allows me to approach projects holistically—from concept and narrative to visuals and technical execution.
+                <br><br>
+                I’m always excited to collaborate, experiment, and create games that feel memorable, immersive, and fun to play.
+            </div>
+
+            <div style="display: grid; gap: 2rem;">
+                <div style="background:#111; padding:2rem; border-left:4px solid #FF416C;">
+                    <h3 style="color:#FF416C; margin-bottom:0.5rem; font-size: 2rem; text-transform: uppercase;">Game Designer</h3>
+                    <p style="color:#ccc;">Passionate about player experience and mechanics. Experienced in Unity, Maya, and Substance Painter to create engaging gameplay loops.</p>
+                </div>
+                <div style="background:#111; padding:2rem; border-left:4px solid #E056FD;">
+                    <h3 style="color:#E056FD; margin-bottom:0.5rem; font-size: 2rem; text-transform: uppercase;">Technical Artist</h3>
+                    <p style="color:#ccc;">Bridging art and code. I optimize performance and implement high-end visuals using custom shaders and engine tools.</p>
+                </div>
+                <div style="background:#111; padding:2rem; border-left:4px solid #F37335;">
+                    <h3 style="color:#F37335; margin-bottom:0.5rem; font-size: 2rem; text-transform: uppercase;">Narrative Designer</h3>
+                    <p style="color:#ccc;">Building immersive worlds through environmental storytelling and deep character lore, moving beyond traditional dialogue boxes.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="work" class="section">
+            <h2 class="section-title">My Works</h2>
+            <div class="work-categories">
+                <button class="category-btn active" onclick="switchCategory(event, 'designed-games')">Designed Games</button>
+                <button class="category-btn" onclick="switchCategory(event, 'tech-art')">Technical Art</button>
+                <button class="category-btn" onclick="switchCategory(event, '3d-art')">3D Arts</button>
+                <button class="category-btn" onclick="switchCategory(event, 'concepts')">Concepts</button>
+            </div>
+
+            <div id="designed-games" class="project-grid active-grid">
+                <div class="project-card" onclick="openGameModal('bubble')">
+                    <div class="card-icon">🫧</div>
+                    <div class="card-info"><h3>Bubble World</h3><p>Environmental Artist & Co-Game Designer</p></div>
+                </div>
+                <div class="project-card" onclick="openGameModal('cartel')">
+                    <div class="card-icon">🚓</div>
+                    <div class="card-info"><h3>Cartel Rush</h3><p>Game Designer & Technical Artist</p></div>
+                </div>
+                <div class="project-card" onclick="openGameModal('soul')">
+                    <div class="card-icon">👻</div>
+                    <div class="card-info"><h3>Soul Bound</h3><p>Co-Game Designer & 2D Artist</p></div>
+                </div>
+            </div>
+
+            <div id="tech-art" class="tech-art-container">
+                <div class="tech-tabs-nav">
+                    <div class="tech-tab active-tech" onclick="openTechTab(event, 'holo-tab')">Hologram Shader</div>
+                    <div class="tech-tab" onclick="openTechTab(event, 'smoke1-tab')">Smoke FX I</div>
+                    <div class="tech-tab" onclick="openTechTab(event, 'smoke2-tab')">Smoke FX II</div>
+                </div>
+                <div class="tech-content-area">
+                    <div id="holo-tab" class="tech-tab-content active-content">
+                        <div class="tech-video-wrapper"><iframe src="https://www.youtube.com/embed/b8Rfn4ec0qg" frameborder="0" allowfullscreen></iframe></div>
+                        <div class="tech-desc"><h3>Hologram Shader</h3><p>Custom shader graph implementation for futuristic scanline effects.</p></div>
+                    </div>
+                    <div id="smoke1-tab" class="tech-tab-content">
+                        <div class="tech-video-wrapper"><iframe src="https://www.youtube.com/embed/D--QObwvVD8" frameborder="0" allowfullscreen></iframe></div>
+                        <div class="tech-desc"><h3>Smoke FX I</h3><p>Volumetric smoke simulation using particle systems.</p></div>
+                    </div>
+                    <div id="smoke2-tab" class="tech-tab-content">
+                        <div class="tech-video-wrapper"><iframe src="https://www.youtube.com/embed/v9-VY4fhlag" frameborder="0" allowfullscreen></iframe></div>
+                        <div class="tech-desc"><h3>Smoke FX II</h3><p>Advanced particle behavior and environmental interaction.</p></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="3d-art" class="project-grid">
+                <div class="project-card" onclick="openGameModal('fountain')">
+                    <div class="card-icon">⛲</div>
+                    <div class="card-info"><h3>Ancient Courtyard Fountain</h3><p>Environment Art | 3D Modeling</p></div>
+                </div>
+            </div>
+
+            <div id="concepts" class="project-grid">
+                <div class="project-card" onclick="openGameModal('mindmaze')">
+                    <div class="card-icon">🧠</div>
+                    <div class="card-info"><h3>Mind Maze</h3><p>Puzzle-Adventure Concept</p></div>
+                </div>
+                <div class="project-card" onclick="openGameModal('lastorder')">
+                    <div class="card-icon">📦</div>
+                    <div class="card-info"><h3>Last Order: Dead Zone</h3><p>Horror Survival Concept</p></div>
+                </div>
+                <div class="project-card" onclick="openGameModal('arcanist')">
+                    <div class="card-icon">🧙‍♂️</div>
+                    <div class="card-info"><h3>Arcanist Unleashed</h3><p>Fantasy Action Concept</p></div>
+                </div>
+                <div class="project-card" onclick="openGameModal('tictac')">
+                    <div class="card-icon">🎲</div>
+                    <div class="card-info"><h3>Tic Tac Twist</h3><p>Inclusive Strategy Concept</p></div>
+                </div>
+                <div class="project-card" onclick="openGameModal('househollow')">
+                    <div class="card-icon">🗝️</div>
+                    <div class="card-info"><h3>House of Hollow Keys</h3><p>Psychological Horror Concept</p></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="section" style="text-align:center;">
+            <h2 class="section-title">Let's Build Worlds</h2>
+            <div class="social-container">
+                <a href="Arjun_MB_Resume.pdf" target="_blank" rel="noopener noreferrer" class="social-item">
+                    <div class="social-icon-box resume">
+                        <svg class="social-icon-svg" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                    </div>
+                    <span class="social-text">Resume</span>
+                </a>
+
+                <a href="https://www.linkedin.com/in/arjun-m-b-315a292a1" target="_blank" rel="noopener noreferrer" class="social-item">
+                    <div class="social-icon-box linkedin"><svg class="social-icon-svg" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg></div>
+                    <span class="social-text">LinkedIn</span>
+                </a>
+
+                <a href="https://www.instagram.com/___.arjnnnn?igsh=czMwcWZqMDZwajBj&utm_source=qr" target="_blank" rel="noopener noreferrer" class="social-item">
+                    <div class="social-icon-box insta"><svg class="social-icon-svg" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.069-4.85.069-3.204 0-3.584-.012-4.849-.069-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></div>
+                    <span class="social-text">Instagram</span>
+                </a>
+
+                <a href="mailto:arjunmab7@gmail.com" class="social-item">
+                    <div class="social-icon-box gmail"><svg class="social-icon-svg" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></div>
+                    <span class="social-text">Email</span>
+                </a>
+            </div>
+        </section>
+        <footer style="text-align:center; padding:2rem; border-top:1px solid #333; color:#555;">&copy; 2026 Arjun MB. All Rights Reserved.</footer>
+    </div>
+
+    <div id="project-modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeGameModal()">&times;</span>
+            <h1 id="modal-title" class="modal-title">Project Title</h1>
+            <div id="modal-video-container" class="video-container"><iframe id="modal-video" src="" frameborder="0" allowfullscreen></iframe></div>
+            <div class="role-badges" id="modal-roles"></div>
+            <div id="modal-desc" class="modal-desc"></div>
+            <div id="artstation-link-container"></div>
+        </div>
+    </div>
+
+    <script>
+        function startGame() {
+            document.getElementById('splash-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('splash-screen').style.display = 'none';
+                document.getElementById('main-content').style.display = 'block';
+                setTimeout(() => document.getElementById('main-content').style.opacity = '1', 50);
+            }, 800);
+        }
+
+        const gamesData = {
+            'bubble': {
+                title: 'Bubble World', videoId: 'E-qltkGs--0', roles: ['Environmental Artist', 'Co-Game Designer'],
+                desc: `Bubble Worlds is a PC-Based Survival Game in which the player will be required to play as a kid who loves to play with bubbles and gets stuck in an imaginary world filled with bubbles and must find an exit. The player will not be able to see much due to the fog in the bubble world, and also there will be bubbles floating in the world, but the problem will be that the moment the kid enters the specific bubble world, the world will start to shrink, and the kid must find the point where the bubble is going to pop`
+            },
+            'cartel': {
+                title: 'Cartel Rush (Ongoing)', videoId: 'CH3ctOqW708', roles: ['Game Designer', 'Technical Artist'],
+                desc: `Cartel Rush is a cinematic split-screen co-op heist game where players step into the driver’s seat as cartel enforcers tasked with ambushing armored convoys, tearing vaults free under heavy fire, and outrunning waves of cops, mercenaries, and rival cartel soldiers. Every mission is a high-speed, high-stakes escape that blends vehicular combat with precision teamwork, all tied together by a gritty cartel war narrative. It’s not an open-world racer, but a tightly scripted, adrenaline-fueled experience where speed, loyalty, and betrayal collide.`
+            },
+            'soul': {
+                title: 'Soul Bound', videoId: '_ijf3iMYcLQ', roles: ['Co-Game Designer', '2D Artist'],
+                desc: `The God of all realms is retiring and has chosen a human soul as his successor. This decision enrages both Angels and Demons, who believe divine power should be theirs. As a test, God throws the protagonist into a mysterious realm, granting the ability to possess Angels and Demons temporarily. The player must use possession mechanics to fight enemies, manipulate their Sin Bar, and navigate through levels filled with divine and demonic forces. The ultimate goal is to escape and prove oneself worthy of becoming the next God.`
+            },
+            'mindmaze': {
+                title: 'Mind Maze', videoId: '', roles: ['Puzzle-Adventure', 'Level Design'],
+                desc: `In Mind Maze, a fast-paced puzzle-adventure game, players need to navigate a tricky maze to find the real exit before time runs out. They'll face decoy paths and dead ends that challenge their decision-making skills.\n\nIf they take a wrong turn, they can get back on the right track by answering a straightforward math or general knowledge question. Failing that, they’ll be sent back to their last checkpoint. The game encourages players to keep trying, as it tracks their time and scores, helping them improve their speed and accuracy. It’s a fun mix of brainpower, quick reactions, and spatial awareness.`
+            },
+            'lastorder': {
+                title: 'Last Order: Dead Zone', videoId: '', roles: ['Survival Horror', 'Puzzle-Solving', 'Narrative'],
+                desc: `In Last order: dead zone you play as a regular food delivery boy who accidentally accepts an order from a mysterious address only to be transported into a looping post-apocalyptic world overrun by zombies.\n\nThe only way to escape is to successfully deliver the food, but the path is filled with relentless undead, deadly traps, and crumbling terrain. If the food is damaged, lost, or stolen, the loop resets, forcing the player to try again. The game blends horror, survival, puzzle-solving, and dark humor as the player navigates a world where the most important mission is not survival but completing the order. The goal is simple: deliver the food, escape the nightmare.`
+            },
+            'arcanist': {
+                title: 'Arcanist Unleashed', videoId: '', roles: ['Fantasy Action', 'Memory Puzzles'],
+                desc: `An powerful Arcanist, whose legendary magic and memory are stolen from him by a jealous rival through robbery, goes into a world of vibrant fantasy with a mission of tracing the lost magical artifacts and rebuilding his five ultimate spells through his unique memory puzzles.\n\nOn the way, he encounters more and more formidable enemies in a bid to regain his former glory and take revenge.`
+            },
+            'tictac': {
+                title: 'Tic Tac Twist', videoId: '', roles: ['Board Game Design', 'Accessibility', 'Interaction Design'],
+                desc: `Tactile Tic-Tac-Twist is a fun, turn-based board game crafted especially for blind and visually impaired players, drawing inspiration from the beloved classic, Tic-Tac-Toe.\n\nInstead of just one grid, this game boasts three tactile 3x3 boards stacked on top of each other, each marked with raised dots to show which layer it belongs to—one dot for the top layer, two for the middle, and three for the bottom.\n\nPlayers alternate turns placing their unique tactile pieces—triangles for one player and circles for the other—into the empty spots on any of the three layers. The exciting twist? Each player can rotate the top or middle board once during the game, shifting the pieces around and adding a layer of strategy. To win, a player needs to line up three of their pieces in a row—whether that’s across a single board, vertically through the same spot on all three layers, or diagonally like a staircase. This game is entirely tactile, requiring no visual cues, making it accessible for blind players while still being enjoyable for those who can see.`
+            },
+            'househollow': {
+                title: 'House of Hollow Keys', videoId: '', roles: ['Psychological Horror', 'Environmental Storytelling'],
+                desc: `In order to escape from the house occupied by demons and distorted according to Satan's evil intentions, the player must search for the evil key located in the darkest areas of the house. The problem is that the house distorts reality according to Satan's plans, hiding the key and confusing the position of the player.\n\nThe appearance of terrifying monsters depends on the degree of fear felt by the player, which creates a problem in the chances of survival for the player. The more fear the house inspires in the player, the more it will influence the character. If the player lets their fear get the better of them and blacks out from seeing too many horrific images, they will not escape the ghost world. Even with the evil key in hand, the last appearance of Satan will distort the mansion in the worst way imaginable.`
+            },
+            'fountain': {
+                title: 'Ancient Courtyard Fountain',
+                videoId: '',
+                artstation: 'https://www.artstation.com/artwork/x3GkgR',
+                roles: ['3D Modeling', 'Environment Art', 'Texturing'],
+                desc: `This project showcases an ancient courtyard fountain environment created as part of my 3D environment art practice. Fully created in <b>Autodesk Maya</b> and textured in <b>Substance 3D Painter</b>.`
+            }
+        };
+
+        function switchCategory(event, catId) {
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            document.querySelectorAll('.project-grid').forEach(grid => grid.classList.remove('active-grid'));
+            document.querySelector('.tech-art-container').classList.remove('active-grid');
+            document.getElementById(catId).classList.add('active-grid');
+        }
+
+        function openTechTab(evt, tabName) {
+            document.querySelectorAll('.tech-tab-content').forEach(c => c.classList.remove('active-content'));
+            document.querySelectorAll('.tech-tab').forEach(t => t.classList.remove('active-tech'));
+            document.getElementById(tabName).classList.add('active-content');
+            evt.currentTarget.classList.add('active-tech');
+        }
+
+        function openGameModal(id) {
+            const data = gamesData[id];
+            const modal = document.getElementById('project-modal');
+            const videoContainer = document.getElementById('modal-video-container');
+            const artstationContainer = document.getElementById('artstation-link-container');
+            document.getElementById('modal-title').innerText = data.title;
+            document.getElementById('modal-desc').innerHTML = data.desc;
+            
+            if(data.videoId) {
+                videoContainer.style.display = 'block';
+                document.getElementById('modal-video').src = `https://www.youtube.com/embed/${data.videoId}`;
+            } else {
+                videoContainer.style.display = 'none';
+            }
+
+            artstationContainer.innerHTML = '';
+            if(data.artstation) {
+                const link = document.createElement('a');
+                link.href = data.artstation;
+                link.target = '_blank';
+                link.className = 'artstation-btn';
+                link.innerText = 'View High-Res on ArtStation';
+                artstationContainer.appendChild(link);
+            }
+
+            const rolesDiv = document.getElementById('modal-roles');
+            rolesDiv.innerHTML = '';
+            data.roles.forEach(role => {
+                const badge = document.createElement('span');
+                badge.className = 'role-badge';
+                badge.innerText = role;
+                rolesDiv.appendChild(badge);
+            });
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeGameModal() {
+            const modal = document.getElementById('project-modal');
+            modal.style.display = 'none';
+            document.getElementById('modal-video').src = "";
+            document.body.style.overflow = 'auto';
+        }
+
+        window.onclick = function(event) { if (event.target == document.getElementById('project-modal')) closeGameModal(); }
+    </script>
+</body>
+</html>
